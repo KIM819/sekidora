@@ -142,6 +142,10 @@ function displayUnselectedSeats() {
         row.appendChild(seatCell);
         unselectedTable.appendChild(row);
     }
+
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.appendChild(unselectedTable); // Append the unselected seats table to the results section
+}
 function displayUnselectedSeats() {
     const totalSeats = Array.from({ length: 39 }, (_, i) => (i + 1).toString()); // Array of seat numbers 1-39
     const selectedSeats = Object.values(choices); // Get all chosen seat numbers
