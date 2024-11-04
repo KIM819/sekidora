@@ -9,36 +9,51 @@
 <body>
 <!-- partial:index.partial.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>席ドラフト</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>席決めドラフトサイト</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>席ドラフト</h1>
-        
-        <div id="seat-selection">
-            <label for="student-number">出席番号</label>
-            <input type="number" id="student-number" min="1" max="39" required>
-            
-            <label for="seat-number">選択する席番号(1-39):</label>
-            <input type="number" id="seat-number" min="1" max="39" required>
-            
-            <button id="submit-choice">送信</button>
-        </div>
-        
-        <div id="results" style="display: none;">
-            <h2>最終結果</h2>
-            <div id="assigned-seats"></div>
-        </div>
-        
-        <button id="finalize" style="display: none;">確定</button>
-    </div>
+    <h1>席決めドラフト</h1>
+    <p>出席番号順に席番号を選んでください。</p>
     
+    <!-- Form for selecting seats -->
+    <form id="seatForm">
+        <label for="studentNumber">出席番号:</label>
+        <input type="number" id="studentNumber" min="1" max="39" required>
+        
+        <label for="seatChoice">席番号:</label>
+        <input type="number" id="seatChoice" min="1" max="39" required>
+        
+        <button type="button" onclick="submitChoice()">送信</button>
+    </form>
+
+    <!-- Status table showing submitted and unsubmitted students -->
+    <h2>送信状況</h2>
+    <table id="statusTable">
+        <tr><th>送信済み</th><th>未送信</th></tr>
+        <tr><td id="submitted"></td><td id="unsubmitted"></td></tr>
+    </table>
+
+    <!-- Button to reveal all choices -->
+    <button onclick="revealChoices()">決定</button>
+
+    <!-- Display seat choices after all have been submitted -->
+    <div id="results" style="display: none;">
+        <h2>選択結果</h2>
+        <table id="choicesTable"></table>
+    </div>
+
     <script src="script.js"></script>
+  <!-- Conflict Resolution Section -->
+<div id="conflicts" style="display: none;">
+    <h2>席の競合</h2>
+    <table id="conflictTable"></table>
+    <button onclick="resolveConflicts()">競合を解決する</button>
+</div>
 </body>
 </html>
 <!-- partial -->

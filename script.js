@@ -1,56 +1,127 @@
-// Variables to track choices and assignments
-let choices = {};
-let finalizedSeats = {};
+let choices = {}; // Store seat choices keyed by student number
+let submittedStudents = new Set(); // Track students who have submitted
+let conflicts = {}; // Track conflicts
 
-// Event listener for submitting a seat choice
-document.getElementById("submit-choice").addEventListener("click", () => {
-    let studentNumber = document.getElementById("student-number").value;
-    let seatNumber = document.getElementById("seat-number").value;
+function submitChoice() {
+    const studentNumber = document.getElementById("studentNumber").value;
+    const seatChoice = document.getElementById("seatChoice").value;
 
-    if (studentNumber && seatNumber) {
-        if (!choices[seatNumber]) {
-            // Assign seat if not taken
-            choices[seatNumber] = [studentNumber];
-        } else {
-            // Add student to seat's conflict list
-            choices[seatNumber].push(studentNumber);
-        }
-        alert("Choice submitted! Next student can make a selection.");
-    }
-    
-    // Clear input fields
-    document.getElementById("student-number").value = "";
-    document.getElementById("seat-number").value = "";
-});
-
-// Event listener for finalizing seat assignments
-document.getElementById("finalize").addEventListener("click", () => {
-    for (let seat in choices) {
-        if (choices[seat].length === 1) {
-            // No conflict, seat is assigned
-            finalizedSeats[seat] = choices[seat][0];
-        } else {
-            // Conflict resolution needed (rock-paper-scissors)
-            alert(`Seat ${seat} has a conflict! Resolve with rock-paper-scissors.`);
-        }
-    }
-    
-    // Display final results
-    displayResults();
-});
-
-// Function to display the final seat assignments
-function displayResults() {
-    const assignedSeatsDiv = document.getElementById("assigned-seats");
-    assignedSeatsDiv.innerHTML = "";
-
-    for (let seat in finalizedSeats) {
-        const p = document.createElement("p");
-        p.textContent = `Seat ${seat}: Student ${finalizedSeats[seat]}`;
-        assignedSeatsDiv.appendChild(p);
+    // Check if the inputs are valid
+    if (!studentNumber || !seatChoice || choices[studentNumber]) {
+        alert("入力が無効です。すでに選択した席を選ばないでください。");
+        return;
     }
 
+    choices[studentNumber] = seatChoice;
+    submittedStudents.add(studentNumber);
+    updateStatus();
+}
+
+function updateStatus() {
+    const submittedList = Array.from(submittedStudents).sort((a, b) => a - b);
+    const unsubmittedList = Array.from({length: 39}, (_, i) => (i + 1).toString())
+        .filter(num => !submittedStudents.has(num))
+        .sort((a, b) => a - b);
+
+    document.getElementById("submitted").innerText = submittedList.join(", ");
+    document.getElementById("unsubmitted").innerText = unsubmittedList.join(", ");
+}
+
+function revealChoices() {
     document.getElementById("results").style.display = "block";
-    document.getElementById("seat-selection").style.display = "none";
-    document.getElementById("finalize").style.display = "none";
+    const table = document.getElementById("choicesTable");
+    table.innerHTML = "<tr><th>出席番号</th><th>席番号</th></tr>";
+
+    for (let student in choices) {
+        const row = document.createElement("tr");
+        const studentCell = document.createElement("td");
+        const seatCell = document.createElement("td");
+        
+        studentCell.innerText = student;
+        seatCell.innerText = choices[student];
+
+        row.appendChild(studentCell);
+        row.appendChild(seatCell);
+        table.appendChild(row);
+    }
+
+    checkForConflicts();
+}
+
+function checkForConflicts() {
+    conflicts = {}; // Reset conflicts
+
+    // Check for duplicate seat selections
+    for (let student in choices) {
+        const seat = choices[student];
+        if (!conflicts[seat]) {
+            conflicts[seat] = []; // Initialize array for this seat
+        }
+        conflicts[seat].push(student); // Add student to seat array
+    }
+
+    // Filter out seats with only one student
+    for (const seat in conflicts) {
+        if (conflicts[seat].length <= 1) {
+            delete conflicts[seat]; // Remove seats with no conflicts
+        }
+    }
+
+    // Show conflicts if any
+    if (Object.keys(conflicts).length > 0) {
+        displayConflicts();
+    } else {
+        document.getElementById("conflicts").style.display = "none"; // No conflicts
+        alert("すべての席が確定しました。");
+    }
+}
+
+function displayConflicts() {
+    const conflictTable = document.getElementById("conflictTable");
+    conflictTable.innerHTML = "<tr><th>席番号</th><th>出席番号</th></tr>";
+
+    for (const seat in conflicts) {
+        const row = document.createElement("tr");
+        const seatCell = document.createElement("td");
+        const studentCell = document.createElement("td");
+        
+        seatCell.innerText = seat;
+        studentCell.innerText = conflicts[seat].join(", ");
+
+        row.appendChild(seatCell);
+        row.appendChild(studentCell);
+        conflictTable.appendChild(row);
+    }
+
+    document.getElementById("conflicts").style.display = "block"; // Show conflict section
+}
+
+function resolveConflicts() {
+    // This function should allow manual input for conflict resolution
+    const seatNumber = prompt("競合を解決する席番号を入力してください:");
+    if (conflicts[seatNumber]) {
+        const winners = prompt(`次の出席番号の中から勝者を選んでください:\n${conflicts[seatNumber].join(", ")}`);
+        if (winners && conflicts[seatNumber].includes(winners)) {
+            // Confirm the chosen winner and remove the losers
+            const winnerIndex = conflicts[seatNumber].indexOf(winners);
+            const losers = conflicts[seatNumber].filter((_, index) => index !== winnerIndex);
+
+            // Update the choices to reflect the confirmed seat
+            choices[winners] = seatNumber;
+
+            // Remove losers from submitted students and choices
+            for (const loser of losers) {
+                delete choices[loser];
+                submittedStudents.delete(loser);
+            }
+
+            // Update status and check for new conflicts
+            updateStatus();
+            revealChoices(); // Show updated choices
+        } else {
+            alert("勝者として無効な出席番号です。");
+        }
+    } else {
+        alert("指定された席番号に競合はありません。");
+    }
 }
