@@ -19,7 +19,7 @@ function submitChoice() {
 
 function updateStatus() {
     const submittedList = Array.from(submittedStudents).sort((a, b) => a - b);
-    const unsubmittedList = Array.from({length: 39}, (_, i) => (i + 1).toString())
+    const unsubmittedList = Array.from({ length: 39 }, (_, i) => (i + 1).toString())
         .filter(num => !submittedStudents.has(num))
         .sort((a, b) => a - b);
 
@@ -127,11 +127,6 @@ function resolveConflicts() {
     }
 }
 
-
-
-    const resultsDiv = document.getElementById("results");
-    resultsDiv.appendChild(unselectedTable); // Append the unselected seats table to the results section
-}
 function displayUnselectedSeats() {
     const totalSeats = Array.from({ length: 39 }, (_, i) => (i + 1).toString()); // Array of seat numbers 1-39
     const selectedSeats = Object.values(choices); // Get all chosen seat numbers
