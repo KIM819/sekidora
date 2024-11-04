@@ -1,49 +1,56 @@
-// 選択された席の情報を保持する変数
-let seatChoices = {};
-let confirmedSeats = [];
-let conflictingSeats = [];
+// Variables to track choices and assignments
+let choices = {};
+let finalizedSeats = {};
 
-// 席を選択して送信ボタンが押されたときの処理
-function submitChoice() {
-  const studentNumber = document.getElementById('student-number').value;
-  const seatChoice = document.getElementById('seat-choice').value;
+// Event listener for submitting a seat choice
+document.getElementById("submit-choice").addEventListener("click", () => {
+    let studentNumber = document.getElementById("student-number").value;
+    let seatNumber = document.getElementById("seat-number").value;
 
-  if (!studentNumber || !seatChoice) {
-    alert("出席番号と席番号を入力してください。");
-    return;
-  }
-
-  // 席の選択を保存
-  if (seatChoices[seatChoice]) {
-    // すでにその席が選ばれている場合
-    seatChoices[seatChoice].push(studentNumber);
-    conflictingSeats.push(seatChoice);
-  } else {
-    // 初めてその席が選ばれた場合
-    seatChoices[seatChoice] = [studentNumber];
-  }
-
-  updateResults();
-}
-
-// 確定席と重複席の表示を更新
-function updateResults() {
-  const confirmedList = document.getElementById('confirmed-seats');
-  const conflictingList = document.getElementById('conflicting-seats');
-
-  confirmedList.innerHTML = '';
-  conflictingList.innerHTML = '';
-
-  for (let seat in seatChoices) {
-    if (seatChoices[seat].length === 1) {
-      confirmedSeats.push(seat);
-      const li = document.createElement('li');
-      li.textContent = `席 ${seat}: 出席番号 ${seatChoices[seat][0]} が確定`;
-      confirmedList.appendChild(li);
-    } else {
-      const li = document.createElement('li');
-      li.textContent = `席 ${seat}: 出席番号 ${seatChoices[seat].join(", ")} が重複`;
-      conflictingList.appendChild(li);
+    if (studentNumber && seatNumber) {
+        if (!choices[seatNumber]) {
+            // Assign seat if not taken
+            choices[seatNumber] = [studentNumber];
+        } else {
+            // Add student to seat's conflict list
+            choices[seatNumber].push(studentNumber);
+        }
+        alert("Choice submitted! Next student can make a selection.");
     }
-  }
+    
+    // Clear input fields
+    document.getElementById("student-number").value = "";
+    document.getElementById("seat-number").value = "";
+});
+
+// Event listener for finalizing seat assignments
+document.getElementById("finalize").addEventListener("click", () => {
+    for (let seat in choices) {
+        if (choices[seat].length === 1) {
+            // No conflict, seat is assigned
+            finalizedSeats[seat] = choices[seat][0];
+        } else {
+            // Conflict resolution needed (rock-paper-scissors)
+            alert(`Seat ${seat} has a conflict! Resolve with rock-paper-scissors.`);
+        }
+    }
+    
+    // Display final results
+    displayResults();
+});
+
+// Function to display the final seat assignments
+function displayResults() {
+    const assignedSeatsDiv = document.getElementById("assigned-seats");
+    assignedSeatsDiv.innerHTML = "";
+
+    for (let seat in finalizedSeats) {
+        const p = document.createElement("p");
+        p.textContent = `Seat ${seat}: Student ${finalizedSeats[seat]}`;
+        assignedSeatsDiv.appendChild(p);
+    }
+
+    document.getElementById("results").style.display = "block";
+    document.getElementById("seat-selection").style.display = "none";
+    document.getElementById("finalize").style.display = "none";
 }
