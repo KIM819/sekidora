@@ -127,21 +127,7 @@ function resolveConflicts() {
     }
 }
 
-function displayUnselectedSeats() {
-    const totalSeats = Array.from({length: 39}, (_, i) => (i + 1).toString()); // Create an array of seat numbers 1-39
-    const selectedSeats = Object.values(choices); // Get all chosen seat numbers
-    const unselectedSeats = totalSeats.filter(seat => !selectedSeats.includes(seat)); // Find unselected seats
 
-    const unselectedTable = document.createElement("table");
-    unselectedTable.innerHTML = "<tr><th>未選択の席番号</th></tr>";
-
-    for (const seat of unselectedSeats) {
-        const row = document.createElement("tr");
-        const seatCell = document.createElement("td");
-        seatCell.innerText = seat;
-        row.appendChild(seatCell);
-        unselectedTable.appendChild(row);
-    }
 
     const resultsDiv = document.getElementById("results");
     resultsDiv.appendChild(unselectedTable); // Append the unselected seats table to the results section
