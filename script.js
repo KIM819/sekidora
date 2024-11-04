@@ -3,8 +3,11 @@ let submittedStudents = new Set(); // Track students who have submitted
 let conflicts = {}; // Track conflicts
 
 function submitChoice() {
-    const studentNumber = document.getElementById("studentNumber").value;
-    const seatChoice = document.getElementById("seatChoice").value;
+    const studentNumberInput = document.getElementById("studentNumber");
+    const seatChoiceInput = document.getElementById("seatChoice");
+
+    const studentNumber = studentNumberInput.value;
+    const seatChoice = seatChoiceInput.value;
 
     // Check if the inputs are valid
     if (!studentNumber || !seatChoice || choices[studentNumber]) {
@@ -15,6 +18,13 @@ function submitChoice() {
     choices[studentNumber] = seatChoice;
     submittedStudents.add(studentNumber);
     updateStatus();
+
+    // Clear the seat choice input field
+    seatChoiceInput.value = "";
+
+    // Auto-increment the student number input
+    const maxStudentNumber = Math.max(...Array.from(submittedStudents).map(Number));
+    studentNumberInput.value = (maxStudentNumber + 1).toString();
 }
 
 function updateStatus() {
